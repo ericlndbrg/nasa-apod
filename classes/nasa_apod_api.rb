@@ -14,7 +14,7 @@ class NasaApodApi
     self.api_response = JSON.parse(response.body)
     self.hdurl = self.api_response['hdurl']
     self.title = self.api_response['title']
-    return [self.hdurl, build_image_filename]
+    [self.hdurl, build_image_filename]
   end
 
   private

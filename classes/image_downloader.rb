@@ -1,12 +1,12 @@
 class ImageDownloader
 
-  require 'open3'
-
   def self.download_image(hdurl, filename)
-    stdout, stderr, status = Open3.capture3("wget --output-document=./images/#{filename} #{hdurl}")
-    puts "stdout: #{stdout}"
-    puts "stderr: #{stderr}"
-    puts "status: #{status}"
+    system('wget', "--output-document=./images/#{filename}", "#{hdurl}", exception: true)
+    rescue RuntimeError
+      # happens when the hdurl is wack
+      puts 'Image could not be downloaded, invalid hdurl.'
+      # delete the empty file that wget saved
+      system('rm', "./images/#{filename}")
   end
 
 end
