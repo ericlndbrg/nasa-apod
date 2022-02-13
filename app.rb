@@ -1,19 +1,25 @@
 #!/usr/bin/env ruby
 
-require 'dotenv/load'
-require_relative 'classes/nasa_apod_api'
-require_relative 'classes/image_downloader'
+def main
+  require 'dotenv/load'
+  require_relative 'classes/nasa_apod_api'
+  require_relative 'classes/image_downloader'
 
-Dotenv.require_keys('API_KEY')
+  image_directory = File.realdirpath('images')
 
-begin
+  Dotenv.require_keys('API_KEY')
+
   apod = NasaApodApi.new
-  image_hdurl, todays_image_filename = apod.fetch_nasa_apod_response
-  if File.exist?("./images/#{todays_image_filename}")
-    puts 'Today\'s image has already been downloaded.'
+  apod.fetch_apod_image_url_and_filename
+
+  if File.exist?("#{image_directory}/#{apod.image_filename}")
+    raise(StandardError, 'Today\'s image has already been downloaded.')
   else
-    ImageDownloader.download_image(image_hdurl, todays_image_filename)
+    ImageDownloader.download_image(apod.image_url, apod.image_filename, image_directory)
   end
-rescue NoMethodError
-  puts "Today\'s APOD is not an image."
+
+  rescue StandardError => e
+    puts e.message
 end
+
+main
