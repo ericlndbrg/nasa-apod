@@ -2,11 +2,7 @@ class NasaApodApi
   require 'net/http'
   require 'json'
 
-  attr_accessor :base_url, :api_response, :image_url, :image_filename
-
-  def initialize
-    self.base_url = URI("https://api.nasa.gov/planetary/apod?api_key=#{ENV['API_KEY']}")
-  end
+  attr_accessor :api_response, :image_url, :image_filename
 
   def fetch_apod_image_url_and_filename
     fetch_nasa_apod_data
@@ -31,7 +27,8 @@ class NasaApodApi
   private
 
   def fetch_nasa_apod_data
-    response = Net::HTTP.get(self.base_url)
+    nasa_uri = URI("https://api.nasa.gov/planetary/apod?api_key=#{ENV['API_KEY']}")
+    response = Net::HTTP.get(nasa_uri)
     self.api_response = JSON.parse(response)
   end
 
@@ -41,6 +38,6 @@ class NasaApodApi
       self.image_url.length
     ]
     title_without_spaces = image_title.gsub(' ', '-')
-    image_filename = "#{title_without_spaces}#{image_extension}"
+    "#{title_without_spaces}#{image_extension}"
   end
 end
