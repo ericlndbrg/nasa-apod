@@ -21,6 +21,7 @@ GEM
     rubocop-ast (1.5.0)
       parser (>= 3.0.1.1)
     ruby-progressbar (1.11.0)
+    sqlite3 (1.4.2)
     unicode-display_width (2.0.0)
 
 PLATFORMS
@@ -29,6 +30,7 @@ PLATFORMS
 DEPENDENCIES
   dotenv (~> 2.7, >= 2.7.6)
   rubocop (~> 1.14)
+  sqlite3 (~> 1.4, >= 1.4.2)
 
 BUNDLED WITH
    2.2.17
