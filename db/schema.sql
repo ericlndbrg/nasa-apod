@@ -1,4 +1,4 @@
-CREATE TABLE apod_details(
+CREATE TABLE apod_data(
   copyright TEXT,
   title TEXT,
   date TEXT,
