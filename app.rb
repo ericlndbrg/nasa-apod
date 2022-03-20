@@ -57,6 +57,8 @@ def main
       download_image(new_row[0])
       # set downloaded = true if download succeeds
       ApodDatum.update(today)
+      # delete the apod if the app is in dev mode, makes development easier
+      ApodDatum.destroy(today) if ENV['APP_ENV'] == 'dev'
     else
       # media_type != image
       raise(StandardError, 'Today\'s APOD is not an image.')

@@ -1,6 +1,8 @@
 class ImageDownloader
   def self.download_image(image_url, image_filename, image_directory)
     output_file_path = "#{image_directory}/#{image_filename}"
+    # delete the file if it exists, may not be necessary
+    File.delete(output_file_path) if File.exist?(output_file_path)
     unless system('wget', "--output-document=#{output_file_path}", image_url)
       # system returns:
       #   true if the command gives zero exit status
