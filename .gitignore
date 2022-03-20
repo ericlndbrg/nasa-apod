@@ -1,4 +1,4 @@
 .env
 images/
 notes/
-db/
+db/*.db
