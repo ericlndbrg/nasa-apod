@@ -1,32 +1,35 @@
+require 'sqlite3'
+
 class ApodDatum
   # this class is supposed to be a Rails-like model for the apod_data table
-  require 'sqlite3'
 
-  def self.find(date)
-    db = SQLite3::Database.new('db/dev.db', results_as_hash: true)
-    apod_for_today = db.execute("SELECT * FROM apod_data WHERE date = ?", date)
-    # apod_for_today should be either
+  attr_reader :query_result
+
+  def find(date)
+    # self.query_result should be either
     #   an empty array or
     #   an array with today's APOD a hash in the first index position
-    db.close
-    apod_for_today.first
+    execute_query('SELECT * FROM apod_data WHERE date = ?', date)
+    self.query_result.first
   end
 
-  def self.update(date)
-    db = SQLite3::Database.new('db/dev.db')
-    db.execute("UPDATE apod_data SET downloaded = 1 WHERE date = ?", date)
-    db.close
+  def update(date)
+    execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', date)
   end
 
-  def self.insert(attributes)
-    db = SQLite3::Database.new('db/dev.db')
-    db.execute("INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", attributes)
-    db.close
+  def insert(attributes)
+    execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', attributes)
   end
 
-  def self.destroy(date)
-    db = SQLite3::Database.new('db/dev.db')
-    db.execute("DELETE FROM apod_data WHERE date = ?", date)
+  def destroy(date)
+    execute_query('DELETE FROM apod_data WHERE date = ?', date)
+  end
+
+  private
+
+  def execute_query(sql, data)
+    db = SQLite3::Database.new('db/dev.db', results_as_hash: true)
+    @query_result = db.execute(sql, data)
     db.close
   end
 end

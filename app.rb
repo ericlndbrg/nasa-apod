@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
+require_relative 'classes/application'
+
 def main
-  require_relative 'classes/application'
   app = Application.new
   app.run
 end

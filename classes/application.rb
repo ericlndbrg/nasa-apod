@@ -6,15 +6,16 @@ require_relative 'image_downloader'
 require_relative 'apod_datum'
 
 class Application
-  attr_reader :today
+  attr_reader :today, :apod_datum
 
   def initialize
     @today = Date.today.to_s
+    @apod_datum = ApodDatum.new
   end
 
   def run
     # check the db for a record with today's date
-    apod_for_today = ApodDatum.find(self.today)
+    apod_for_today = self.apod_datum.find(self.today)
     # if today's apod record is found
     if !apod_for_today.nil?
       # if media_type == image
@@ -28,7 +29,7 @@ class Application
           # download today's apod image
           download_image(apod_for_today)
           # set the downloaded = true if download succeeds
-          ApodDatum.update(self.today)
+          self.apod_datum.update(self.today)
         end
       else
         # media_type != image
@@ -49,17 +50,17 @@ class Application
         apod_data['url']
       ]
       # save response in db
-      ApodDatum.insert(apod_attributes)
+      self.apod_datum.insert(apod_attributes)
       # grab the new row
-      apod_for_today = ApodDatum.find(self.today)
+      apod_for_today = self.apod_datum.find(self.today)
       # if media_type == image
       if apod_for_today['media_type'] == 'image'
         # download the image
         download_image(apod_for_today)
         # set downloaded = true if download succeeds
-        ApodDatum.update(self.today)
+        self.apod_datum.update(self.today)
         # delete the apod if the app is in dev mode, makes development easier
-        ApodDatum.destroy(self.today) if ENV['APP_ENV'] == 'dev'
+        self.apod_datum.destroy(self.today) if ENV['APP_ENV'] == 'dev'
       else
         # media_type != image
         raise(StandardError, 'Today\'s APOD is not an image.')
