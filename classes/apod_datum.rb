@@ -1,7 +1,5 @@
 require 'sqlite3'
-require 'net/http'
-require 'json'
-require 'dotenv/load'
+require_relative 'nasa_apod_api'
 
 class ApodDatum
   # this class is supposed to be a Rails-like model for the apod_data table
@@ -13,10 +11,7 @@ class ApodDatum
     query_result = db.execute('SELECT * FROM apod_data WHERE date = ?', date).first
 
     if query_result.nil?
-      # move the next 3 lines to their own class
-      nasa_uri = URI("https://api.nasa.gov/planetary/apod?api_key=#{ENV['API_KEY']}")
-      response = Net::HTTP.get(nasa_uri)
-      apod_data = JSON.parse(response)
+      apod_data = NasaApodApi.fetch_apod_data
       apod_attributes = [
         apod_data['copyright'],
         apod_data['date'],
