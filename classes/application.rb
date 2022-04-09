@@ -11,14 +11,21 @@ class Application
   end
 
   def run
+    # today's APOD can be either an image or a video
+    # since I only care about images, check its media_type and decide what to do
     if self.apod_for_today.media_type == 'image'
+      # today's APOD is an image
       if self.apod_for_today.downloaded == 0
+        # I haven't downloaded it yet, download it
         download_image
-        self.apod_for_today.update
+        # mark today's APOD record as having been downloaded
+        self.apod_for_today.mark_as_downloaded
       else
+        # I've already downloaded it
         raise(StandardError, "APOD for #{today} has already been downloaded.")
       end
     else
+      # today's APOD is not an image
       raise(StandardError, "APOD for #{today} is not an image.")
     end
   rescue StandardError => e

@@ -3,14 +3,17 @@ require_relative 'nasa_apod_api'
 
 class ApodDatum
   # this class is supposed to be a Rails-like model for the apod_data table
+  # each instance represents a row in the apod_data table
 
   attr_accessor :copyright, :date, :explanation, :hdurl, :media_type, :service_version, :title, :url, :downloaded
 
   def self.find_or_create(date)
     db = SQLite3::Database.new('db/dev.db', results_as_hash: true)
+    # check to see if I've already fetched today's APOD data
     query_result = db.execute('SELECT * FROM apod_data WHERE date = ?', date).first
 
     if query_result.nil?
+      # I haven't fetched today's APOD data yet, get it from NASA
       apod_data = NasaApodApi.fetch_apod_data
       apod_attributes = [
         apod_data['copyright'],
@@ -22,12 +25,16 @@ class ApodDatum
         apod_data['title'],
         apod_data['url']
       ]
+      # save the response
       db.execute('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
       query_result = db.execute('SELECT * FROM apod_data WHERE date = ?', date).first
       db.close
+      # make an instance with the new data
       new(query_result)
     else
+      # I've already fetched today's APOD data
       db.close
+      # make an instance with it
       new(query_result)
     end
   end
@@ -44,7 +51,8 @@ class ApodDatum
     self.downloaded = apod_data['downloaded']
   end
 
-  def update
+  def mark_as_downloaded
+    # set the downloaded attribute for today's APOD to 1
     db = SQLite3::Database.new('db/dev.db')
     db.execute('UPDATE apod_data SET downloaded = 1 WHERE date = ?', self.date)
     db.close
