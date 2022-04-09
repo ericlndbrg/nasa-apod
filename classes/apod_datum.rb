@@ -1,35 +1,57 @@
 require 'sqlite3'
+require 'net/http'
+require 'json'
+require 'dotenv/load'
 
 class ApodDatum
   # this class is supposed to be a Rails-like model for the apod_data table
 
-  attr_reader :query_result
+  attr_accessor :copyright, :date, :explanation, :hdurl, :media_type, :service_version, :title, :url, :downloaded
 
-  def find(date)
-    # self.query_result should be either
-    #   an empty array or
-    #   an array with today's APOD a hash in the first index position
-    execute_query('SELECT * FROM apod_data WHERE date = ?', date)
-    self.query_result.first
-  end
-
-  def update(date)
-    execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', date)
-  end
-
-  def insert(attributes)
-    execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', attributes)
-  end
-
-  def destroy(date)
-    execute_query('DELETE FROM apod_data WHERE date = ?', date)
-  end
-
-  private
-
-  def execute_query(sql, data)
+  def self.find_or_create(date)
     db = SQLite3::Database.new('db/dev.db', results_as_hash: true)
-    @query_result = db.execute(sql, data)
+    query_result = db.execute('SELECT * FROM apod_data WHERE date = ?', date).first
+
+    if query_result.nil?
+      # move the next 3 lines to their own class
+      nasa_uri = URI("https://api.nasa.gov/planetary/apod?api_key=#{ENV['API_KEY']}")
+      response = Net::HTTP.get(nasa_uri)
+      apod_data = JSON.parse(response)
+      apod_attributes = [
+        apod_data['copyright'],
+        apod_data['date'],
+        apod_data['explanation'],
+        apod_data['hdurl'],
+        apod_data['media_type'],
+        apod_data['service_version'],
+        apod_data['title'],
+        apod_data['url']
+      ]
+      db.execute('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
+      query_result = db.execute('SELECT * FROM apod_data WHERE date = ?', date).first
+      db.close
+      new(query_result)
+    else
+      db.close
+      new(query_result)
+    end
+  end
+
+  def initialize(apod_data)
+    self.copyright = apod_data['copyright']
+    self.date = apod_data['date']
+    self.explanation = apod_data['explanation']
+    self.hdurl = apod_data['hdurl']
+    self.media_type = apod_data['media_type']
+    self.service_version = apod_data['service_version']
+    self.title = apod_data['title']
+    self.url = apod_data['url']
+    self.downloaded = apod_data['downloaded']
+  end
+
+  def update
+    db = SQLite3::Database.new('db/dev.db')
+    db.execute('UPDATE apod_data SET downloaded = 1 WHERE date = ?', self.date)
     db.close
   end
 end
