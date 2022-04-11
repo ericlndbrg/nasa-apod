@@ -7,7 +7,7 @@ class Application
 
   def initialize
     @today = Date.today.to_s
-    @apod_for_today = ApodDatum.find_or_create(self.today)
+    @apod_for_today = ApodDatum.new(self.today)
   end
 
   def run

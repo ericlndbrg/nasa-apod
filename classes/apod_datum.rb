@@ -1,55 +1,55 @@
 require_relative 'nasa_apod_api'
 require_relative 'database'
 
-class ApodDatum
+class ApodDatum < Database
   # this class is supposed to be a Rails-like model for the apod_data table
   # each instance represents a row in the apod_data table
 
-  attr_accessor :copyright, :date, :explanation, :hdurl, :media_type, :service_version, :title, :url, :downloaded
+  attr_reader :copyright, :date, :explanation, :hdurl, :media_type, :service_version, :title, :url, :downloaded
 
-  def self.find_or_create(date)
-    # check to see if I've already fetched today's APOD data
-    query_result = Database.execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
+  def initialize(date)
+    apod_data = find_or_create(date)
 
-    if query_result.nil?
-      # I haven't fetched today's APOD data yet, get it from NASA
-      apod_data = NasaApodApi.fetch_apod_data
-      apod_attributes = [
-        apod_data['copyright'],
-        apod_data['date'],
-        apod_data['explanation'],
-        apod_data['hdurl'],
-        apod_data['media_type'],
-        apod_data['service_version'],
-        apod_data['title'],
-        apod_data['url']
-      ]
-      # save the response
-      Database.execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
-      # grab the new data
-      query_result = Database.execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
-      # make an instance with the new data
-      new(query_result)
-    else
-      # I've already fetched today's APOD data, make an instance with it
-      new(query_result)
-    end
-  end
-
-  def initialize(apod_data)
-    self.copyright = apod_data['copyright']
-    self.date = apod_data['date']
-    self.explanation = apod_data['explanation']
-    self.hdurl = apod_data['hdurl']
-    self.media_type = apod_data['media_type']
-    self.service_version = apod_data['service_version']
-    self.title = apod_data['title']
-    self.url = apod_data['url']
-    self.downloaded = apod_data['downloaded']
+    @copyright = apod_data['copyright']
+    @date = apod_data['date']
+    @explanation = apod_data['explanation']
+    @hdurl = apod_data['hdurl']
+    @media_type = apod_data['media_type']
+    @service_version = apod_data['service_version']
+    @title = apod_data['title']
+    @url = apod_data['url']
+    @downloaded = apod_data['downloaded']
   end
 
   def mark_as_downloaded
     # set the downloaded attribute for today's APOD to 1
-    Database.execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', self.date)
+    execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', self.date)
+  end
+
+  private
+
+  def find_or_create(date)
+    # check to see if I've already fetched today's APOD data
+    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
+
+    # I've already fetched today's APOD data
+    return query_result unless query_result.nil?
+
+    # I haven't fetched today's APOD data yet, get it from NASA
+    apod_data = NasaApodApi.fetch_apod_data
+    apod_attributes = [
+      apod_data['copyright'],
+      apod_data['date'],
+      apod_data['explanation'],
+      apod_data['hdurl'],
+      apod_data['media_type'],
+      apod_data['service_version'],
+      apod_data['title'],
+      apod_data['url']
+    ]
+    # save the response
+    execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
+    # grab the new data
+    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
   end
 end
