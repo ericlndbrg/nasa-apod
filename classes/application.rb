@@ -22,11 +22,11 @@ class Application
         self.apod_for_today.mark_as_downloaded
       else
         # I've already downloaded it
-        raise(StandardError, "APOD for #{today} has already been downloaded.")
+        raise(StandardError, "APOD for #{self.today} has already been downloaded.")
       end
     else
       # today's APOD is not an image
-      raise(StandardError, "APOD for #{today} is not an image.")
+      raise(StandardError, "APOD for #{self.today} is not an image.")
     end
   rescue StandardError => e
     puts e.message

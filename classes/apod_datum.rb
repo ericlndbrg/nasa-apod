@@ -49,7 +49,7 @@ class ApodDatum < Database
     ]
     # save the response
     execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
-    # grab the new data
+    # grab the new data and make an instance with it
     query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
   end
 end
