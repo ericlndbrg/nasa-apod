@@ -28,8 +28,6 @@ class Application
       # today's APOD is not an image
       raise(StandardError, "APOD for #{self.today} is not an image.")
     end
-  rescue StandardError => e
-    puts e.message
   end
 
   private
