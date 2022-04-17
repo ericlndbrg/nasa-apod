@@ -23,14 +23,14 @@ class ApodDatum < Database
 
   def mark_as_downloaded
     # set the downloaded attribute for today's APOD to 1
-    execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', self.date)
+    execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', [self.date])
   end
 
   private
 
   def find_or_create(date)
     # check to see if I've already fetched today's APOD data
-    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
+    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', [date], return_result: true).first
 
     # I've already fetched today's APOD data
     return query_result unless query_result.nil?
@@ -50,6 +50,6 @@ class ApodDatum < Database
     # save the response
     execute_query('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
     # grab the new data and make an instance with it
-    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', date, return_result: true).first
+    query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', [date], return_result: true).first
   end
 end
