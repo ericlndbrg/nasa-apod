@@ -22,21 +22,21 @@ class ApodDatum < Database
   end
 
   def mark_as_downloaded
-    # set the downloaded attribute for today's APOD to 1
+    # set the downloaded attribute for self.date's APOD to 1
     execute_query('UPDATE apod_data SET downloaded = 1 WHERE date = ?', [self.date])
   end
 
   private
 
   def find_or_create(date)
-    # check to see if I've already fetched today's APOD data
+    # check to see if I've already fetched self.date's APOD data
     query_result = execute_query('SELECT * FROM apod_data WHERE date = ?', [date], return_result: true).first
 
-    # I've already fetched today's APOD data
+    # I've already fetched self.date's APOD data
     return query_result unless query_result.nil?
 
-    # I haven't fetched today's APOD data yet, get it from NASA
-    apod_data = NasaApodApi.fetch_apod_data
+    # I haven't fetched self.date's APOD data yet, get it from NASA
+    apod_data = NasaApodApi.fetch_apod_data(date)
     apod_attributes = [
       apod_data['copyright'],
       apod_data['date'],
