@@ -13,7 +13,8 @@ class ImageDownloader
         # this happens when the image_url is malformed
         File.delete(output_file_path)
       end
-      raise(StandardError, 'NASA can\'t find today\'s image.')
+      # raise(StandardError, 'NASA can\'t find today\'s image.')
+      puts "NASA can't find today's image."
     end
   end
 end
