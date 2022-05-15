@@ -1,12 +1,22 @@
 require 'sqlite3'
 
 class Database
+  attr_reader :path_to_db_file
+
+  def initialize
+    @path_to_db_file = File.absolute_path(File.join('db', "#{ENV['APP_ENV']}.db"))
+  end
+
   def select_by_date(date)
-    execute_query(return_result: true) { |db| db.execute('SELECT * FROM apod_data WHERE date = ?', date) }
+    execute_query(return_result: true) do |db|
+      db.execute('SELECT * FROM apod_data WHERE date = ?', date)
+    end
   end
 
   def select_by_date_range(dates)
-    execute_query(return_result: true) { |db| db.execute('SELECT * FROM apod_data WHERE date BETWEEN ? AND ?', dates) }
+    execute_query(return_result: true) do |db|
+      db.execute('SELECT * FROM apod_data WHERE date BETWEEN ? AND ?', dates)
+    end
   end
 
   def insert_data(apod_data)
@@ -21,19 +31,22 @@ class Database
         apod_datum['title'],
         apod_datum['url']
       ]
-      execute_query { |db| db.execute('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes) }
+      execute_query do |db|
+        db.execute('INSERT INTO apod_data(copyright, date, explanation, hdurl, media_type, service_version, title, url) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', apod_attributes)
+      end
     end
   end
 
   def mark_as_downloaded(date)
-    execute_query { |db| db.execute('UPDATE apod_data SET downloaded = 1 WHERE date = ?', [date]) }
+    execute_query do |db|
+      db.execute('UPDATE apod_data SET downloaded = 1 WHERE date = ?', [date])
+    end
   end
 
   private
 
   def execute_query(return_result: false)
-    path_to_db_file = File.absolute_path(File.join('db', "#{ENV['APP_ENV']}.db"))
-    db = SQLite3::Database.new(path_to_db_file, results_as_hash: true)
+    db = SQLite3::Database.new(self.path_to_db_file, results_as_hash: true)
     result = yield(db)
     db.close
     return result if return_result
