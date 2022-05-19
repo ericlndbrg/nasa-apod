@@ -2,11 +2,18 @@ require 'net/http'
 require 'json'
 
 class NasaApodApi
-  def self.fetch_apod_data(dates)
+  attr_reader :dates, :base_uri
+
+  def initialize(dates)
+    @dates = dates
+    @base_uri = "https://api.nasa.gov/planetary/apod?api_key=#{ENV['NASA_APOD_API_KEY']}"
+  end
+
+  def fetch_apod_data
     apod_data = []
-    dates.each do |date|
-      nasa_uri = URI("https://api.nasa.gov/planetary/apod?api_key=#{ENV['NASA_APOD_API_KEY']}&date=#{date}")
-      response = Net::HTTP.get(nasa_uri)
+    self.dates.each do |date|
+      full_uri = self.base_uri + "&date=#{date}"
+      response = Net::HTTP.get(URI.parse(full_uri))
       response_as_hash = JSON.parse(response)
       apod_data.push(response_as_hash)
     end
