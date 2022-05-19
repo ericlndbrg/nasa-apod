@@ -19,6 +19,12 @@ class Database
     end
   end
 
+  def select_by_undownloaded_images
+    execute_query(return_result: true) do |db|
+      db.execute('SELECT date, hdurl, url, title FROM apod_data WHERE media_type = ? AND downloaded = ?', ['image', 0])
+    end
+  end
+
   def insert_data(apod_data)
     apod_data.each do |apod_datum|
       apod_attributes = [
