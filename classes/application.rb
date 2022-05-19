@@ -40,7 +40,8 @@ class Application
       # I've already fetched the APOD data for dates
       return query_result unless query_result.empty?
       # get the APOD data for the provided date from NASA
-      apod_data = NasaApodApi.fetch_apod_data(dates)
+      @nasa_apod_api = NasaApodApi.new(dates)
+      apod_data = @nasa_apod_api.fetch_apod_data
       # insert the newly fetched data
       self.database.insert_data(apod_data)
       # return the data
@@ -54,7 +55,8 @@ class Application
       # I already have all the dates
       return query_result if apod_records_i_need.empty?
       # get the APOD data for the dates in apod_records_i_need from NASA
-      apod_data = NasaApodApi.fetch_apod_data(apod_records_i_need)
+      @nasa_apod_api = NasaApodApi.new(apod_records_i_need)
+      apod_data = @nasa_apod_api.fetch_apod_data
       # insert the newly fetched data
       self.database.insert_data(apod_data)
       # return the data
