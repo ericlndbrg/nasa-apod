@@ -22,11 +22,8 @@ class Application
       query_result = self.database.select_by_date(self.dates)
       # I've already fetched the APOD data for dates
       return unless query_result.empty?
-      # get the APOD data for the provided date from NASA
+      # if I make it here, I need to get APOD data from NASA
       nasa_apod_api = NasaApodApi.new(self.dates)
-      apod_data = nasa_apod_api.fetch_apod_data
-      # insert the newly fetched data
-      self.database.insert_data(apod_data)
     else
       query_result = self.database.select_by_date_range(self.dates)
       # check for dates that are missing from the results set
@@ -35,12 +32,13 @@ class Application
       apod_records_i_need = date_range.to_a.map(&:to_s).difference(apod_records_i_already_have)
       # I already have all the dates
       return if apod_records_i_need.empty?
-      # get the APOD data for the dates in apod_records_i_need from NASA
+      # if I make it here, I need to get APOD data from NASA
       nasa_apod_api = NasaApodApi.new(apod_records_i_need)
-      apod_data = nasa_apod_api.fetch_apod_data
-      # insert the newly fetched data
-      self.database.insert_data(apod_data)
     end
+    # get the APOD data for the dates I need from NASA
+    apod_data = nasa_apod_api.fetch_apod_data
+    # insert the newly fetched data
+    self.database.insert_data(apod_data)
   end
 
   def download_images
