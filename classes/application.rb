@@ -45,10 +45,14 @@ class Application
     undownloaded_images = self.database.select_by_undownloaded_images
     return if undownloaded_images.empty?
     image_directory = File.realdirpath('images')
+    threads = []
     undownloaded_images.each do |image|
       image_url = image['hdurl'] || image['url']
-      ImageDownloader.download_image(image_url, image['title'], image_directory)
-      self.database.mark_as_downloaded(image['date'])
+      threads << Thread.new do
+        ImageDownloader.download_image(image_url, image['title'], image_directory)
+        self.database.mark_as_downloaded(image['date'])
+      end
     end
+    threads.each(&:join)
   end
 end
