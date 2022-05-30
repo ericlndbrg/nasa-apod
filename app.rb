@@ -1,27 +1,27 @@
 #!/usr/bin/env ruby
 
-require_relative 'classes/application'
 require 'date'
+require_relative 'classes/application'
+require_relative 'classes/user_input_validator'
 
-def validate_app_env
-  # if APP_ENV hasn't been set yet, set it to 'dev'
-  ENV['APP_ENV'] ||= 'dev'
-  # for now, ENV['APP_ENV'] is only allowed to be 'dev' or 'prod'
-  unless ['dev', 'prod'].include?(ENV['APP_ENV'])
-    raise(StandardError, 'Please run the app in one of these environments: dev, prod.')
-  end
+def make_date_range(date_array)
+  date_range = (Date.parse(date_array[0])..Date.parse(date_array[1]))
+  date_range.to_a.sort.map(&:to_s)
 end
 
 def date_params
   return [Date.today.to_s] if ARGF.argv.empty?
-  # the contents of ARGF.argv need validation
-  start_date, end_date = ARGF.argv
-  [start_date, end_date].compact.sort
+  # ARGF.argv isn't empty, validate what's in it
+  validator = UserInputValidator.new(ARGF.argv)
+  if validator.is_user_input_valid?
+    return [ARGF.argv[0]] if ARGF.argv.count == 1
+    return make_date_range(ARGF.argv.sort) if ARGF.argv.count == 2
+  else
+    raise(StandardError, 'The user input is not valid. Please try again.')
+  end
 end
 
 def main
-  validate_app_env
-
   app = Application.new(date_params)
   app.run
 
