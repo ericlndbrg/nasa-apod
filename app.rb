@@ -1,32 +1,20 @@
 #!/usr/bin/env ruby
 
-require 'date'
-require_relative 'classes/application'
+# frozen_string_literal: true
+
 require_relative 'classes/user_input_validator'
-
-def make_date_range(date_array)
-  date_range = (Date.parse(date_array[0])..Date.parse(date_array[1]))
-  date_range.to_a.sort.map(&:to_s)
-end
-
-def date_params
-  return [Date.today.to_s] if ARGF.argv.empty?
-  # ARGF.argv isn't empty, validate what's in it
-  validator = UserInputValidator.new(ARGF.argv)
-  if validator.is_user_input_valid?
-    return [ARGF.argv[0]] if ARGF.argv.count == 1
-    return make_date_range(ARGF.argv.sort) if ARGF.argv.count == 2
-  else
-    raise(StandardError, 'The user input is not valid. Please try again.')
-  end
-end
+require_relative 'classes/nasa_apod_api'
+require_relative 'classes/image_downloader'
 
 def main
-  app = Application.new(date_params)
-  app.run
+  validator = UserInputValidator.new(ARGF.argv)
+  validator.validate
 
-rescue StandardError => e
-  puts e.message
+  nasa_apod_api = NasaApodApi.new(validator.user_input)
+  nasa_api_response = nasa_apod_api.fetch_apod_data
+
+  image_downloader = ImageDownloader.new(nasa_api_response)
+  image_downloader.download_images
 end
 
 main

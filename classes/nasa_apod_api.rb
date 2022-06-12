@@ -1,49 +1,39 @@
+# frozen_string_literal: true
+
 require 'net/http'
 require 'json'
 
+# handles calls to the NASA APOD API
 class NasaApodApi
-  attr_reader :dates, :base_uri
-
   def initialize(dates)
     @dates = dates
-    @base_uri = "https://api.nasa.gov/planetary/apod?api_key=#{ENV['NASA_APOD_API_KEY']}"
   end
 
   def fetch_apod_data
-    # build uri
-    full_uri = build_uri
-    # get api response
-    api_response = get_api_response(full_uri)
-    puts "api_response: #{api_response.inspect}"
-    raise
-    # process api response
-    if api_response.is_a?(Hash)
-      # single date, api_response is a hash
-      # return an empty array if the response contains a video
-      api_response['media_type'] == 'image' ? [api_response] : []
-    else
-      # date range, api_response is an array of hashes
-      # filter out the videos
-      api_response.filter { |apod| apod['media_type'] == 'image' }
-    end
+    full_uri = build_full_uri
+    get_api_response(full_uri)
   end
 
   private
 
-  def build_uri
-    if self.dates.count == 1
-      # build uri for a single date
-      self.base_uri + "&date=#{self.dates.first}"
-    else
-      # build uri for a date range
-      self.base_uri + "&start_date=#{self.dates.first}" + "&end_date=#{self.dates.last}"
-    end
+  attr_reader :dates
+
+  def build_full_uri
+    query_string = URI.encode_www_form(build_uri_query_string)
+    URI("https://api.nasa.gov/planetary/apod?#{query_string}")
+  end
+
+  def build_uri_query_string
+    uri_query = { api_key: ENV['NASA_APOD_API_KEY'] }
+    return uri_query.merge({ date: self.dates[0] }) if self.dates.count == 1
+
+    uri_query.merge({ start_date: self.dates[0], end_date: self.dates[1] })
   end
 
   def get_api_response(uri)
-    # if the app was ran with a single date, returns a hash
+    # if the app was ran with a single date or no date, returns a hash
     # if the app was ran with two dates, returns an array of hashes
-    response = Net::HTTP.get(URI.parse(uri))
-    JSON.parse(response)
+    # this method's return object must be an array for the image downloader to work
+    [JSON.parse(Net::HTTP.get(uri))].flatten
   end
 end

@@ -1,17 +1,21 @@
+# frozen_string_literal: true
+
 require 'date'
 
+# validates the user input
 class UserInputValidator
   attr_reader :user_input
 
   def initialize(user_input)
-    @user_input = user_input
+    @user_input = user_input.sort
+    @user_input.push(Date.today.to_s) if self.user_input.empty?
   end
 
-  def is_user_input_valid?
-    return false unless valid_count?
-    return false unless valid_format.all?
-    return false unless valid_date.all?
-    true
+  def validate
+    raise(StandardError, 'Too many dates were passed in.') unless valid_count?
+    raise(StandardError, 'Invalid date format. Use YYYY-MM-DD.') unless valid_format.all?
+    raise(StandardError, 'Invalid date.') unless valid_date.all?
+    raise(StandardError, 'Invalid APOD date. Choose date(s) between 1995-06-16 and today.') unless valid_apod_date.all?
   end
 
   private
@@ -36,8 +40,17 @@ class UserInputValidator
     # I need to put either true or false in the memo, depending on the success of strptime
     self.user_input.each_with_object([]) do |string, memo|
       memo << true if Date.strptime(string, '%Y-%m-%d')
-      rescue
-        memo << false
+    rescue Date::Error
+      memo << false
+    end
+  end
+
+  def valid_apod_date
+    # APODs exist for dates between 1995-06-16 and today inclusive
+    soonest_apod_date = Date.new(1995, 6, 16)
+    latest_apod_date = Date.today
+    self.user_input.each_with_object([]) do |string, memo|
+      memo << (soonest_apod_date..latest_apod_date).include?(Date.parse(string))
     end
   end
 end
