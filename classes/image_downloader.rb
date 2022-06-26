@@ -3,21 +3,31 @@
 # downloads each APOD image
 class ImageDownloader
   def initialize(apod_data)
-    @apod_data = apod_data
+    self.apod_data = apod_data
+    self.downloaded_images_counter = 0
   end
 
   def download_images
+    #  TODO: remove forward slashes from apod['title']
     path_to_images_directory = File.realdirpath('images')
     self.apod_data.each do |apod|
-      next if apod['media_type'] != 'image'
-
       output_file_path = "#{path_to_images_directory}/#{apod['title']}"
+      next if File.exist?(output_file_path)
       image_url = apod['hdurl'] || apod['url']
-      system('wget', "--output-document=#{output_file_path}", '--no-clobber', image_url)
+      system('wget', "--output-document=#{output_file_path}", '--no-verbose', image_url)
+      self.downloaded_images_counter += 1
+    end
+  end
+
+  def report_progress
+    if self.downloaded_images_counter == 0
+      puts 'APOD images for the given date(s) have already been downloaded'
+    else
+      puts "Successfully downloaded #{self.downloaded_images_counter} APOD image(s)"
     end
   end
 
   private
 
-  attr_reader :apod_data
+  attr_accessor :apod_data, :downloaded_images_counter
 end

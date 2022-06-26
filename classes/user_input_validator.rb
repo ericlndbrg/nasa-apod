@@ -7,8 +7,8 @@ class UserInputValidator
   attr_reader :user_input
 
   def initialize(user_input)
-    @user_input = user_input.sort
-    @user_input.push(Date.today.to_s) if self.user_input.empty?
+    self.user_input = user_input.sort
+    self.user_input.push(Date.today.to_s) if self.user_input.empty?
   end
 
   def validate
@@ -19,6 +19,8 @@ class UserInputValidator
   end
 
   private
+
+  attr_writer :user_input
 
   def valid_count?
     # acceptable ways to run the app with user input are:
