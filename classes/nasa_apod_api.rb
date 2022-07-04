@@ -9,12 +9,12 @@ class NasaApodApi
 
   def initialize(dates)
     self.dates = dates
-    self.uri = build_full_uri
+    self.uri = build_uri
     self.apod_image_data = fetch_apod_images
     self.apod_image_count = self.apod_image_data.count
   end
 
-  def report_progress
+  def sit_rep
     if self.apod_image_count == 0
       puts 'NASA does not have any APOD images for the date(s) given'
     else
@@ -27,7 +27,7 @@ class NasaApodApi
   attr_accessor :dates, :uri, :apod_image_count
   attr_writer :apod_image_data
 
-  def build_full_uri
+  def build_uri
     query_string = URI.encode_www_form(build_uri_query_string)
     URI("https://api.nasa.gov/planetary/apod?#{query_string}")
   end

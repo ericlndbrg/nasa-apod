@@ -23,7 +23,7 @@ class UserInputValidator
   attr_writer :user_input
 
   def valid_count?
-    # acceptable ways to run the app with user input are:
+    # acceptable ways to run the app with user input:
     #   ruby app.rb <date>
     #   ruby app.rb <date> <date>
     # self.user_input.count should only be 1 or 2

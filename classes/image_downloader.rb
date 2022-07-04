@@ -8,7 +8,7 @@ class ImageDownloader
   end
 
   def download_images
-    #  TODO: remove forward slashes from apod['title']
+    # TODO: remove forward slashes from apod['title']
     path_to_images_directory = File.realdirpath('images')
     self.apod_data.each do |apod|
       output_file_path = "#{path_to_images_directory}/#{apod['title']}"
@@ -19,7 +19,7 @@ class ImageDownloader
     end
   end
 
-  def report_progress
+  def sit_rep
     if self.downloaded_images_counter == 0
       puts 'APOD images for the given date(s) have already been downloaded'
     else
