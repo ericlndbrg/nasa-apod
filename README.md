@@ -24,5 +24,5 @@ Be sure to replace "DEMO_KEY" with an actual [NASA API Key](https://api.nasa.gov
 
 The app can be ran in the following ways (use *YYYY-MM-DD* date format):
 - `ruby app.rb` (downloads the APOD for today)
-- `ruby app.rb <date>` (downloads the APOD for <date>)
-- `ruby app.rb <start_date> <end_date>` (downloads the APODs between <start_date> and <end_date> inclusive)
+- `ruby app.rb <date>` (downloads the APOD for the provided date)
+- `ruby app.rb <start_date> <end_date>` (downloads the APODs between start_date and end_date inclusive)
