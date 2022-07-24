@@ -3,6 +3,7 @@
 I'm using:
 - Ubuntu 20.04.4
 - Ruby 3.0.0
+- Bundler 2.2.17
 - SQLite 3.31.1
 - WGET 1.20.3
 
@@ -10,6 +11,7 @@ Smoke Test:
 ```
 git clone <repo_url>
 cd nasa-apod/
+bundle install
 mkdir images
 echo 'export NASA_APOD_API_KEY="DEMO_KEY"' >> ~/.bashrc
 source ~/.bashrc
