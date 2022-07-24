@@ -9,7 +9,7 @@ I'm using:
 Smoke Test:
 ```
 git clone <repo_url>
-cd nasa_apod/
+cd nasa-apod/
 mkdir images
 echo 'export NASA_APOD_API_KEY="DEMO_KEY"' >> ~/.bashrc
 source ~/.bashrc
