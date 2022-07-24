@@ -12,9 +12,14 @@ class ImageDownloader
     path_to_images_directory = File.realdirpath('images')
     self.apod_data.each do |apod|
       output_file_path = "#{path_to_images_directory}/#{apod['title']}"
-      next if File.exist?(output_file_path)
+
+      if File.exist?(output_file_path)
+        puts "#{apod['title']} has already been downloaded"
+        next
+      end
+
       image_url = apod['hdurl'] || apod['url']
-      system('wget', "--output-document=#{output_file_path}", '--no-verbose', image_url)
+      system('wget', "--output-document=#{output_file_path}", image_url)
       self.downloaded_images_counter += 1
     end
   end

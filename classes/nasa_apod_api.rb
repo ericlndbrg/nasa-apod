@@ -10,7 +10,7 @@ class NasaApodApi
   def initialize(dates)
     self.dates = dates
     self.uri = build_uri
-    self.apod_image_data = fetch_apod_images
+    self.apod_image_data = get_apod_images
     self.apod_image_count = self.apod_image_data.count
   end
 
@@ -39,7 +39,7 @@ class NasaApodApi
     uri_query.merge({ start_date: self.dates[0], end_date: self.dates[1] })
   end
 
-  def fetch_apod_images
+  def get_apod_images
     get_api_response.filter { |apod| apod['media_type'] == 'image' }
   end
 

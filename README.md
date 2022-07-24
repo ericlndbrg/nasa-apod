@@ -1,4 +1,4 @@
-# This is a simple command line Ruby application that downloads the Astronomy Picture of the Day (APOD) from NASA.
+## This is a simple command line Ruby application that downloads the Astronomy Picture of the Day (APOD) from NASA.
 
 I'm using:
 - Ubuntu 20.04.4
@@ -8,14 +8,15 @@ I'm using:
 
 Smoke Test:
 ```
-clone the repo
+git clone <repo_url>
 cd nasa_apod/
 mkdir images
 echo 'export NASA_APOD_API_KEY="DEMO_KEY"' >> ~/.bashrc
+source ~/.bashrc
 ruby app.rb
 ```
 
-You should have the APOD for today saved in the ./images directory. If not and no errors are present, the APOD for today is not an image. In that case, nothing is downloaded.
+You should have the APOD for today saved in *./images*. If not and no errors are present, today's APOD isn't an image. Run the app again with a date as input until an image appears in */images*. See instructions below for details.
 
 Be sure to replace "DEMO_KEY" with an actual [NASA API Key](https://api.nasa.gov/#signUp).
 
