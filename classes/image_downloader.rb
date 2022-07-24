@@ -1,20 +1,38 @@
+# frozen_string_literal: true
+
+# downloads each APOD image
 class ImageDownloader
-  def self.download_image(image_url, image_filename, image_directory)
-    output_file_path = "#{image_directory}/#{image_filename}"
-    # delete the file if it exists, may not be necessary
-    File.delete(output_file_path) if File.exist?(output_file_path)
-    unless system('wget', "--output-document=#{output_file_path}", image_url)
-      # system returns:
-      #   true if the command gives zero exit status
-      #   false for non zero exit status
-      #   nil if command execution fails
+  def initialize(apod_data)
+    self.apod_data = apod_data
+    self.downloaded_images_counter = 0
+  end
+
+  def download_images
+    # TODO: remove forward slashes from apod['title']
+    path_to_images_directory = File.realdirpath('images')
+    self.apod_data.each do |apod|
+      output_file_path = "#{path_to_images_directory}/#{apod['title']}"
+
       if File.exist?(output_file_path)
-        # delete the empty file that wget created
-        # this happens when the image_url is malformed
-        File.delete(output_file_path)
+        puts "#{apod['title']} has already been downloaded"
+        next
       end
-      # raise(StandardError, 'NASA can\'t find today\'s image.')
-      puts "NASA can't find today's image."
+
+      image_url = apod['hdurl'] || apod['url']
+      system('wget', "--output-document=#{output_file_path}", image_url)
+      self.downloaded_images_counter += 1
     end
   end
+
+  def sit_rep
+    if self.downloaded_images_counter == 0
+      puts 'APOD images for the given date(s) have already been downloaded'
+    else
+      puts "Successfully downloaded #{self.downloaded_images_counter} APOD image(s)"
+    end
+  end
+
+  private
+
+  attr_accessor :apod_data, :downloaded_images_counter
 end

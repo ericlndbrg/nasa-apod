@@ -1,32 +1,24 @@
 #!/usr/bin/env ruby
 
-require_relative 'classes/application'
-require 'date'
+# frozen_string_literal: true
 
-def validate_app_env
-  # if APP_ENV hasn't been set yet, set it to 'dev'
-  ENV['APP_ENV'] ||= 'dev'
-  # for now, ENV['APP_ENV'] is only allowed to be 'dev' or 'prod'
-  unless ['dev', 'prod'].include?(ENV['APP_ENV'])
-    raise(StandardError, 'Please run the app in one of these environments: dev, prod.')
-  end
-end
-
-def date_params
-  return [Date.today.to_s] if ARGF.argv.empty?
-  # the contents of ARGF.argv need validation
-  start_date, end_date = ARGF.argv
-  [start_date, end_date].compact.sort
-end
+require_relative 'classes/user_input_validator'
+require_relative 'classes/nasa_apod_api'
+require_relative 'classes/image_downloader'
 
 def main
-  validate_app_env
+  validator = UserInputValidator.new(ARGF.argv)
+  validator.validate
 
-  app = Application.new(date_params)
-  app.run
+  nasa_apod_api = NasaApodApi.new(validator.user_input)
+  apod_image_data = nasa_apod_api.apod_image_data
+  nasa_apod_api.sit_rep
 
-rescue StandardError => e
-  puts e.message
+  return if apod_image_data.empty?
+
+  image_downloader = ImageDownloader.new(apod_image_data)
+  image_downloader.download_images
+  image_downloader.sit_rep
 end
 
 main
