@@ -5,6 +5,7 @@
 require_relative 'classes/user_input_validator'
 require_relative 'classes/nasa_apod_api'
 require_relative 'classes/image_downloader'
+require 'byebug'
 
 def main
   validator = UserInputValidator.new(ARGF.argv)
