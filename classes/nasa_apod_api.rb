@@ -5,27 +5,21 @@ require 'json'
 
 # handles calls to the NASA APOD API
 class NasaApodApi
-  attr_reader :apod_image_data
+  attr_reader :processed_image_data
+
+  RELEVANT_APOD_ATTRS = %w[title hdurl url].freeze
 
   def initialize(dates)
     self.dates = dates
     self.uri = build_uri
     self.apod_image_data = get_apod_images
-    self.apod_image_count = self.apod_image_data.count
-  end
-
-  def sit_rep
-    if self.apod_image_count == 0
-      puts 'NASA does not have any APOD images for the date(s) given'
-    else
-      puts "Fetched data for #{self.apod_image_count} APOD image(s) from NASA"
-    end
+    self.processed_image_data = remove_unused_attrs
   end
 
   private
 
-  attr_accessor :dates, :uri, :apod_image_count
-  attr_writer :apod_image_data
+  attr_accessor :dates, :uri, :apod_image_data
+  attr_writer :processed_image_data
 
   def build_uri
     query_string = URI.encode_www_form(build_uri_query_string)
@@ -48,5 +42,14 @@ class NasaApodApi
     # if the app was ran with two dates, returns an array of hashes
     # this method's return object must be an array for the image downloader to work
     [JSON.parse(Net::HTTP.get(self.uri))].flatten
+  end
+
+  def remove_unused_attrs
+    # remove all APOD attrs except for title, hdurl and url
+    return nil if self.apod_image_data.empty?
+
+    self.apod_image_data.map do |apod|
+      apod.filter { |key, _| RELEVANT_APOD_ATTRS.include?(key) }
+    end
   end
 end

@@ -1,4 +1,4 @@
-## This is a simple command line Ruby application that downloads the Astronomy Picture of the Day (APOD) from NASA.
+## A simple command-line Ruby application that downloads the Astronomy Picture of the Day (APOD) from NASA.
 
 I'm using:
 - Ubuntu 20.04.4
