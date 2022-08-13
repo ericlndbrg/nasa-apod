@@ -4,7 +4,6 @@
 class ImageDownloader
   def initialize(apod_data)
     self.apod_data = apod_data
-    self.downloaded_images_counter = 0
   end
 
   def download_images
@@ -20,19 +19,10 @@ class ImageDownloader
 
       image_url = apod['hdurl'] || apod['url']
       system('wget', "--output-document=#{output_file_path}", image_url)
-      self.downloaded_images_counter += 1
-    end
-  end
-
-  def sit_rep
-    if self.downloaded_images_counter == 0
-      puts 'APOD images for the given date(s) have already been downloaded'
-    else
-      puts "Successfully downloaded #{self.downloaded_images_counter} APOD image(s)"
     end
   end
 
   private
 
-  attr_accessor :apod_data, :downloaded_images_counter
+  attr_accessor :apod_data
 end
