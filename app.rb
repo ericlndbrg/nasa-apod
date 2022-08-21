@@ -12,11 +12,11 @@ def main
   validator.validate
 
   nasa_apod_api = NasaApodApi.new(validator.user_input)
-  processed_image_data = nasa_apod_api.processed_image_data
+  apod_data = nasa_apod_api.api_response
 
-  return if processed_image_data.empty?
+  return if apod_data.empty?
 
-  image_downloader = ImageDownloader.new(processed_image_data)
+  image_downloader = ImageDownloader.new(apod_data)
   image_downloader.download_images
 end
 
