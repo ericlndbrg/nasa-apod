@@ -12,7 +12,7 @@ def main
   validator.validate
 
   nasa_apod_api = NasaApodApi.new(validator.user_input)
-  apod_data = nasa_apod_api.api_response
+  apod_data = nasa_apod_api.apod_response
 
   return if apod_data.empty?
 

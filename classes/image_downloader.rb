@@ -9,6 +9,7 @@ class ImageDownloader
   def download_images
     # TODO: remove forward slashes from apod['title']
     path_to_images_directory = File.realdirpath('images')
+
     self.apod_data.each do |apod|
       output_file_path = "#{path_to_images_directory}/#{apod['title']}"
       next if apod['media_type'] != 'image' || File.exist?(output_file_path)
