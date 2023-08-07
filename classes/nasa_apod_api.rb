@@ -24,15 +24,18 @@ class NasaApodApi
 
   def build_uri_query_string
     uri_query = { api_key: ENV['NASA_APOD_API_KEY'] }
-    return uri_query.merge({ date: self.dates[0] }) if self.dates.count == 1
+    return uri_query.merge({ date: dates[0] }) if dates.count == 1
 
-    uri_query.merge({ start_date: self.dates[0], end_date: self.dates[1] })
+    uri_query.merge({ start_date: dates[0], end_date: dates[1] })
   end
 
   def get_api_response(uri)
     # if the app was ran with a single date or no date, returns a hash
     # if the app was ran with two dates, returns an array of hashes
     # this method's return object must be an array for the image downloader to work
-    [JSON.parse(Net::HTTP.get(uri))].flatten
+    api_response = JSON.parse(Net::HTTP.get(uri))
+    return api_response if api_response.is_a?(Array)
+    
+    [].push(api_response)
   end
 end
