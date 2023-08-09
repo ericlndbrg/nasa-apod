@@ -2,19 +2,19 @@
 
 require 'date'
 
-# validates the user input
+# validates user input
 class UserInputValidator
   attr_reader :user_input
 
-  def initialize(user_input)
-    self.user_input = user_input
-    self.user_input.push(Date.today.to_s) if user_input.empty?
+  def initialize(unvalidated_user_input)
+    self.user_input = unvalidated_user_input
+    user_input.push(Date.today.to_s) if unvalidated_user_input.empty?
   end
 
   def validate_user_input
+    validate_count
     validate_format
     validate_date
-    validate_count
     validate_apod_date
   end
 
@@ -22,40 +22,28 @@ class UserInputValidator
 
   attr_writer :user_input
 
+  def validate_count
+    # user_input should only contain a single element
+    raise(StandardError, 'Only 1 date is allowed.') unless user_input.count == 1
+  end
+
   def validate_format
-    # see if the user input is formatted like YYYY-MM-DD
-    user_input.each do |string|
-      raise_error("#{string} is formatted incorrectly. Use YYYY-MM-DD instead.") unless string.match?(/\d{4}-\d{2}-\d{2}/)
-    end
+    # see if user_input is formatted like YYYY-MM-DD
+    raise(StandardError, "#{user_input[0]} is formatted incorrectly. Use YYYY-MM-DD format instead.") unless user_input[0].match?(/\d{4}-\d{2}-\d{2}/)
   end
 
   def validate_date
+    # see if the correctly formatted date is a valid date (i.e. not 2023-09-34)
     # strptime returns the created date object upon success, raises exception otherwise
-    user_input.each do |string|
-      Date.strptime(string, '%Y-%m-%d')
-    rescue Date::Error
-      raise_error("#{string} is not a valid date.")
-    end
-  end
-
-  def validate_count
-    # acceptable ways to run the app with user input:
-    #   ruby app.rb <date>
-    #   ruby app.rb <date> <date>
-    raise_error('Only 2 dates are allowed.') unless (1..2).include?(user_input.count)
+    Date.strptime(user_input[0], '%Y-%m-%d')
   end
 
   def validate_apod_date
     # APODs exist only for dates between 1995-06-16 and today inclusive
+    # see if the user's submitted date is within that range
     soonest_apod_date = Date.new(1995, 6, 16)
     latest_apod_date = Date.today
 
-    user_input.each do |string|
-      raise_error("#{string} is an invalid APOD date. Choose date(s) between 1995-06-16 and today.") unless (soonest_apod_date..latest_apod_date).include?(Date.parse(string))
-    end
-  end
-
-  def raise_error(error_message)
-    raise(DateValidationError, error_message)
+    raise(StandardError, "#{user_input[0]} is an invalid APOD date. Choose a date between #{soonest_apod_date.to_s} and #{latest_apod_date.to_s} inclusive.") unless (soonest_apod_date..latest_apod_date).include?(Date.parse(user_input[0]))
   end
 end
