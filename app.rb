@@ -4,8 +4,9 @@
 
 require_relative 'classes/user_input_validator'
 require_relative 'classes/nasa_apod_api'
-# require_relative 'classes/image_downloader'
-# require_relative 'classes/date_validation_error'
+require_relative 'classes/image_downloader'
+require_relative 'classes/apod_already_downloaded_error'
+require_relative 'classes/apod_unavailable_error'
 require 'byebug'
 
 def main
@@ -14,16 +15,17 @@ def main
 
   apod_date = input_validator.user_input[0]
 
-  # check if I've already got the image for apod_date
-  # raise(StandardError, "Already downloaded the APOD for #{apod_date}") if File.exists?blahblahblah
+  Dir.foreach('images') do |filename|
+    raise(ApodAlreadyDownloadedError, "Already downloaded the APOD for #{apod_date}") if filename.match?(apod_date)
+  end
 
   nasa_apod_api = NasaApodApi.new(apod_date)
-  apod_data = nasa_apod_api.apod_response
+  fetched_apod_data = nasa_apod_api.apod_api_response
 
-  raise(StandardError, "No APOD is available for #{apod_date}") if apod_data.nil?
+  raise(ApodUnavailableError, "No APOD is available for #{apod_date}") if fetched_apod_data.nil?
 
-#   image_downloader = ImageDownloader.new(apod_data)
-#   image_downloader.download_images
+  image_downloader = ImageDownloader.new(fetched_apod_data)
+  image_downloader.download_images
 end
 
 main

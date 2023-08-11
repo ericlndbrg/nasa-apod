@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'date'
+require_relative './invalid_user_input_error'
 
 # validates user input
 class UserInputValidator
@@ -24,12 +25,12 @@ class UserInputValidator
 
   def validate_count
     # user_input should only contain a single element
-    raise(StandardError, 'Only 1 date is allowed.') unless user_input.count == 1
+    raise_validation_error('Only 1 date is allowed.') unless user_input.count == 1
   end
 
   def validate_format
     # see if user_input is formatted like YYYY-MM-DD
-    raise(StandardError, "#{user_input[0]} is formatted incorrectly. Use YYYY-MM-DD format instead.") unless user_input[0].match?(/\d{4}-\d{2}-\d{2}/)
+    raise_validation_error("#{user_input[0]} is formatted incorrectly. Use YYYY-MM-DD format instead.") unless user_input[0].match?(/\d{4}-\d{2}-\d{2}/)
   end
 
   def validate_date
@@ -44,6 +45,10 @@ class UserInputValidator
     soonest_apod_date = Date.new(1995, 6, 16)
     latest_apod_date = Date.today
 
-    raise(StandardError, "#{user_input[0]} is an invalid APOD date. Choose a date between #{soonest_apod_date.to_s} and #{latest_apod_date.to_s} inclusive.") unless (soonest_apod_date..latest_apod_date).include?(Date.parse(user_input[0]))
+    raise_validation_error("#{user_input[0]} is an invalid APOD date. Choose a date between #{soonest_apod_date.to_s} and #{latest_apod_date.to_s} inclusive.") unless (soonest_apod_date..latest_apod_date).include?(Date.parse(user_input[0]))
+  end
+
+  def raise_validation_error(error_message)
+    raise(InvalidUserInputError, error_message)
   end
 end

@@ -9,8 +9,8 @@ class NasaApodApi
     self.date = date
   end
 
-  def apod_response
-    api_response_hash = get_api_response(build_uri)
+  def apod_api_response
+    api_response_hash = fetch_apod_data(build_uri)
     return nil unless api_response_hash['media_type'] == 'image'
 
     api_response_hash
@@ -25,7 +25,7 @@ class NasaApodApi
     URI("https://api.nasa.gov/planetary/apod?#{query_string}")
   end
 
-  def get_api_response(uri)
+  def fetch_apod_data(uri)
     JSON.parse(Net::HTTP.get(uri))
   end
 end
