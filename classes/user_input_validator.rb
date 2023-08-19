@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'date'
-require_relative './invalid_user_input_error'
+require_relative 'invalid_user_input_error'
 
 # validates user input
 class UserInputValidator
