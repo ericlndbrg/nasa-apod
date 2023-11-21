@@ -3,40 +3,86 @@
 # frozen_string_literal: true
 
 require_relative 'classes/user_input_validator'
-require_relative 'classes/nasa_apod_api'
 require_relative 'classes/image_downloader'
 require_relative 'classes/apod_already_downloaded_error'
-require_relative 'classes/apod_unavailable_error'
+require_relative 'classes/apod_not_an_image_error'
+require_relative 'classes/apod_metadata_validation_error'
 require 'byebug'
+require 'net/http'
+require 'json'
 
-def main
-  # validate the user's input
-  input_validator = UserInputValidator.new(ARGF.argv)
-  input_validator.validate_user_input
-
-  apod_date = input_validator.user_input[0]
-
-  # check to see if the APOD for apod_date has already been downloaded
-  #   if so, don't bother NASA
-  Dir.foreach('images') do |filename|
-    raise(ApodAlreadyDownloadedError, "Already downloaded the APOD for #{apod_date}") if filename.match?(apod_date)
+class App
+  def initialize(user_input)
+    self.apod_date = user_input
   end
 
-  # fetch the APOD metadata for apod_date from NASA
-  nasa_apod_api = NasaApodApi.new(apod_date)
-  fetched_apod_data = nasa_apod_api.apod_api_response
+  def execute
+    # check to see if the APOD for apod_date has already been downloaded
+    check_if_apod_downloaded_already
 
-  # fetched_apod_data will be set to nil if the APOD for apod_date isn't an image
-  # this app doesn't attempt to download non-image APODs
-  raise(ApodUnavailableError, "No APOD is available for #{apod_date}") if fetched_apod_data.nil?
+    # ask NASA for the APOD's metadata for apod_date
+    fetch_apod_metadata
 
-  # attempt to download the APOD for apod_date
-  image_downloader = ImageDownloader.new(fetched_apod_data)
-  image_downloader.download_images
+    # check that apod_metadata has the required fields
+    validate_apod_metadata
 
-rescue InvalidUserInputError, Date::Error, ApodAlreadyDownloadedError, ApodUnavailableError => error
-  # notify the user of foreseeable problems
-  puts error.message
+    # download the APOD, but only if it's an image
+    download_apod
+
+    # display the APOD's explanation so that the user can read about the image
+    puts "#{apod_metadata['explanation']}"
+  end
+
+  private
+
+  attr_reader :apod_date
+  attr_accessor :apod_metadata
+
+  def apod_date=(user_input)
+    @apod_date =
+      if user_input.empty?
+        Date.today.to_s
+      else
+        UserInputValidator.new(user_input).validate_user_input
+        user_input.first
+      end
+  end
+
+  def check_if_apod_downloaded_already
+    Dir.foreach('images') do |filename|
+      if filename.match?(apod_date)
+        raise(ApodAlreadyDownloadedError, "Already downloaded the APOD for #{apod_date}")
+      end
+    end
+  end
+
+  def fetch_apod_metadata
+    query_string = URI.encode_www_form({ api_key: ENV['NASA_APOD_API_KEY'], date: apod_date })
+    uri = URI("https://api.nasa.gov/planetary/apod?#{query_string}")
+    self.apod_metadata = JSON.parse(Net::HTTP.get(uri))
+  end
+
+  def validate_apod_metadata
+    required_keys = ['date', 'url', 'media_type', 'title', 'explanation']
+    apod_metadata_keys = apod_metadata.keys
+
+    missing_keys = required_keys.each_with_object([]) do |key, memo|
+      memo << key unless apod_metadata_keys.include?(key)
+    end
+
+    unless missing_keys.empty?
+      raise(ApodMetadataValidationError, "Missing #{missing_keys.count} key(s) from apod_metadata: #{missing_keys.join(', ')}")
+    end
+  end
+
+  def download_apod
+    unless apod_metadata['media_type'] == 'image'
+      raise(ApodNotAnImageError, "The APOD for #{apod_date} is not an image")
+    end
+
+    ImageDownloader.new(apod_metadata).download_image
+  end
 end
 
-main
+app = App.new(ARGF.argv)
+app.execute
