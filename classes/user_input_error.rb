@@ -1,4 +1,4 @@
-class ApodUnavailableError < StandardError
+class UserInputError < StandardError
   def initialize(message)
     super(message)
   end
