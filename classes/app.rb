@@ -1,16 +1,14 @@
-#!/usr/bin/env ruby
-
 # frozen_string_literal: true
 
-require_relative 'classes/user_input_validator'
-require_relative 'classes/image_downloader'
-require_relative 'classes/apod_already_downloaded_error'
-require_relative 'classes/apod_not_an_image_error'
-require_relative 'classes/apod_metadata_validation_error'
-require 'byebug'
+require_relative 'user_input_validator'
+require_relative 'image_downloader'
+require_relative 'apod_already_downloaded_error'
+require_relative 'apod_not_an_image_error'
+require_relative 'apod_metadata_validation_error'
 require 'net/http'
 require 'json'
 
+# the app
 class App
   def initialize(user_input)
     self.apod_date = user_input
@@ -30,7 +28,7 @@ class App
     download_apod
 
     # display the APOD's explanation so that the user can read about the image
-    puts "#{apod_metadata['explanation']}"
+    print_explanation
   end
 
   private
@@ -82,7 +80,8 @@ class App
 
     ImageDownloader.new(apod_metadata).download_image
   end
-end
 
-app = App.new(ARGF.argv)
-app.execute
+  def print_explanation
+    puts "#{apod_metadata['explanation']}"
+  end
+end

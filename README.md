@@ -14,13 +14,15 @@ bundle install
 mkdir images
 echo 'export NASA_APOD_API_KEY="DEMO_KEY"' >> ~/.bashrc
 source ~/.bashrc
-ruby app.rb
+ruby init.rb
 ```
 
-The instuctions above should produce one of two possible results. Either the APOD for today has been downloaded and is saved in the *./images* directory, or a message is displayed in the terminal that tells you that the APOD for today isn't an image (sometimes they're videos/gifs). This app doesn't attempt to download non-image APODs.
+If all goes well, you should have the APOD for today saved in the *./images* directory and the explanation for the APOD printed in the terminal.
+
+Sometimes, the APOD is not an image. If that's the case, the app does not attempt to download it.
 
 Be sure to replace "DEMO_KEY" with an actual [NASA API Key](https://api.nasa.gov/#signUp).
 
 The app can be ran in one of two ways (use *YYYY-MM-DD* date format):
-- `ruby app.rb` (attempts to download the APOD for today)
-- `ruby app.rb <date>` (attempts to download the APOD for the provided date)
+- `ruby init.rb` (attempts to download the APOD for today)
+- `ruby init.rb <date>` (attempts to download the APOD for the provided date)
