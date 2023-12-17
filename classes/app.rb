@@ -82,6 +82,6 @@ class App
   end
 
   def print_explanation
-    puts "#{apod_metadata['explanation']}"
+    puts apod_metadata['explanation']
   end
 end
