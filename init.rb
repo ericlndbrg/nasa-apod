@@ -1,11 +1,13 @@
-#!/usr/bin/env ruby
-
 # frozen_string_literal: true
 
-require_relative 'classes/app'
-
-def main
-  App.new(ARGF.argv).execute
+def run_app
+  require_relative 'classes/app'
+  app = App.new
+  app.run
+rescue => e
+  puts "ERROR! #{e.message}."
+else
+  puts "Successfully downloaded APOD for #{app.date}"
 end
 
-main
+run_app

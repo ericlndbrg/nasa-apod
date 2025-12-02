@@ -1,10 +1,9 @@
 ## A simple command-line Ruby application that downloads the Astronomy Picture of the Day (APOD) from NASA.
 
 This app needs a few things to work. I'm using:
-- Ubuntu 22.04.3
+- Ubuntu 24.04.3
 - Ruby 3.2.2
 - Bundler 2.2.17
-- WGET 1.21.2
 
 Smoke Test:
 ```
@@ -17,7 +16,7 @@ source ~/.bashrc
 ruby init.rb
 ```
 
-If all goes well, you should have the APOD for today saved in the *./images* directory and the explanation for the APOD printed in the terminal.
+If all goes well, you should have the APOD for today saved in the *./images* directory.
 
 Sometimes, the APOD is not an image. If that's the case, the app does not attempt to download it.
 
